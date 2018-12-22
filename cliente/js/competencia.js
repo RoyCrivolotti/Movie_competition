@@ -100,7 +100,7 @@ function CompetitionsController() {
 
 		// Gets the existing movie genres and loads them in the DOM
 		this.loadGenres = function () {
-			$.getJSON(`${server}/generos`, data => {
+			$.getJSON(`${server}/genres`, data => {
 				$('#genero').empty(); // Emptying the element containing the genres
 				$('#genero').append(`<option value='0'>Todos</option>`); // Marking all genres as not-selected
 
@@ -112,7 +112,7 @@ function CompetitionsController() {
 
 		// Gets the existing directors and loads them in the DOM
 		this.loadDirectors = function () {
-			$.getJSON(`${server}/directores`, data => {
+			$.getJSON(`${server}/directors`, data => {
 				$('#director').empty();
 				$('#director').append(`<option value='0'>Todos/as</option>`);
 
@@ -124,7 +124,7 @@ function CompetitionsController() {
 
 		// Gets the existing actors and loads them in the DOM
 		this.loadActors = function () {
-			$.getJSON(`${server}/actores`, data => {
+			$.getJSON(`${server}/actors`, data => {
 				$('#actor').empty();
 				$('#actor').append(`<option value='0'>Todos/as</option>`);
 
