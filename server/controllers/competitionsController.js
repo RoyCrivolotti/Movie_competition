@@ -95,7 +95,7 @@ function getResults(req, res) {
 }
 
 function getGenres(req, res) {
-    let query = ` SELECT nombre FROM genero; `;
+    let query = ` SELECT * FROM genero; `;
 
     connection.query(query, (error, response) => {
         if (error) {
@@ -108,7 +108,7 @@ function getGenres(req, res) {
 }
 
 function getDirectors(req, res) {
-    let query = ` SELECT nombre FROM director; `;
+    let query = ` SELECT * FROM director; `;
 
     connection.query(query, (error, response) => {
         if (error) {
@@ -121,7 +121,32 @@ function getDirectors(req, res) {
 }
 
 function getActors(req, res) {
-    let query = ` SELECT nombre FROM actor; `;
+    let query = ` SELECT * FROM actor; `;
+
+    connection.query(query, (error, response) => {
+        if (error) {
+            console.log(`The query encountered an issue: ${error.message}`);
+            return res.status(404).send(`The query encountered an issue: ${error.message}`);
+        }
+
+        res.json(response);
+    });
+}
+
+function createCompetition(req, res) {
+    let paramID = param => {
+        if (param == 0) return 'NULL';
+        else return param;
+    }
+
+    if (!queryParamExists(req.body.nombre)) return;
+
+    // TODO: instead of doing this with a query I should use a stored procedure where I can do logic more easily: not only do I have to change this to check if a name already exists, but also if there is another competition with the same three parameters
+    // Also, this query isn't ideal; when trying to do a post with a name that already exists, instead of canceling the query it throws an error: "R_DUP_FIELDNAME: Duplicate column name 'NULL'"
+
+    let query = ` INSERT INTO competencias (nombre, genero_id, director_id, actor_id)
+    SELECT * FROM (SELECT '${req.body.nombre}', ${paramID(req.body.genero)}, ${paramID(req.body.director)}, ${paramID(req.body.actor)}) AS tmp
+    WHERE NOT EXISTS (SELECT * FROM competencias WHERE nombre LIKE '${req.body.nombre}'); `;
 
     connection.query(query, (error, response) => {
         if (error) {
@@ -177,5 +202,6 @@ module.exports = {
     getResults: getResults,
     getGenres: getGenres,
     getDirectors: getDirectors,
-    getActors: getActors
+    getActors: getActors,
+    createCompetition: createCompetition
 }
