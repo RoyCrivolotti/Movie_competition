@@ -92,7 +92,45 @@ function getResults(req, res) {
 
         res.json(response);
     });
+}
 
+function getGenres(req, res) {
+    let query = ` SELECT nombre FROM genero; `;
+
+    connection.query(query, (error, response) => {
+        if (error) {
+            console.log(`The query encountered an issue: ${error.message}`);
+            return res.status(404).send(`The query encountered an issue: ${error.message}`);
+        }
+
+        res.json(response);
+    });
+}
+
+function getDirectors(req, res) {
+    let query = ` SELECT nombre FROM director; `;
+
+    connection.query(query, (error, response) => {
+        if (error) {
+            console.log(`The query encountered an issue: ${error.message}`);
+            return res.status(404).send(`The query encountered an issue: ${error.message}`);
+        }
+
+        res.json(response);
+    });
+}
+
+function getActors(req, res) {
+    let query = ` SELECT nombre FROM actor; `;
+
+    connection.query(query, (error, response) => {
+        if (error) {
+            console.log(`The query encountered an issue: ${error.message}`);
+            return res.status(404).send(`The query encountered an issue: ${error.message}`);
+        }
+
+        res.json(response);
+    });
 }
 
 function queryBuilder(mainParams) {
@@ -136,5 +174,8 @@ module.exports = {
     getCompetitions: getCompetitions,
     getOptions: getOptions,
     vote: vote,
-    getResults: getResults
+    getResults: getResults,
+    getGenres: getGenres,
+    getDirectors: getDirectors,
+    getActors: getActors
 }
