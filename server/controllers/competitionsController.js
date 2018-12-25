@@ -139,14 +139,22 @@ function createCompetition(req, res) {
         else return param;
     }
 
+    let valueOrNull = param => { // In the last 'AND NOT EXISTS', if the value is 'NULL' it's compared with 'IS NULL', if it's a number it's compared with the equals operator...
+        if (param == 0) return `IS NULL`;
+        else return ` = ${param} `;
+    }
+
     if (!queryParamExists(req.body.nombre)) return;
 
-    // TODO: instead of doing this with a query I should use a stored procedure where I can do logic more easily: not only do I have to change this to check if a name already exists, but also if there is another competition with the same three parameters
-    // Also, this query isn't ideal; when trying to do a post with a name that already exists, instead of canceling the query it throws an error: "R_DUP_FIELDNAME: Duplicate column name 'NULL'"
-
     let query = ` INSERT INTO competencias (nombre, genero_id, director_id, actor_id)
-    SELECT * FROM (SELECT '${req.body.nombre}', ${paramID(req.body.genero)}, ${paramID(req.body.director)}, ${paramID(req.body.actor)}) AS tmp
-    WHERE NOT EXISTS (SELECT * FROM competencias WHERE nombre LIKE '${req.body.nombre}'); `;
+    SELECT * FROM (SELECT '${req.body.nombre}', ${paramID(req.body.genero)}, ${paramID(req.body.director)}, ${paramID(req.body.actor)}) AS \`values\`
+    WHERE NOT EXISTS
+        (SELECT * FROM competencias WHERE nombre like '${req.body.nombre}')
+    AND NOT EXISTS
+        (SELECT * FROM competencias WHERE genero_id ${valueOrNull(req.body.genero)} AND director_id ${valueOrNull(req.body.director)} AND actor_id ${valueOrNull(req.body.actor)})
+    LIMIT 1; `;
+
+    console.log(query);
 
     connection.query(query, (error, response) => {
         if (error) {
