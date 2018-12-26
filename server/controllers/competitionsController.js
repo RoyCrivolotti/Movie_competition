@@ -134,6 +134,8 @@ function getActors(req, res) {
 }
 
 function createCompetition(req, res) {
+    if (req.body.nombre == '' || (req.body.genero == 0 && req.body.director == 0 && req.body.actor == 0)) return;
+
     let paramID = param => {
         if (param == 0) return 'NULL';
         else return param;
@@ -147,7 +149,7 @@ function createCompetition(req, res) {
     if (!queryParamExists(req.body.nombre)) return;
 
     let query = ` INSERT INTO competencias (nombre, genero_id, director_id, actor_id)
-    SELECT * FROM (SELECT '${req.body.nombre}', ${paramID(req.body.genero)}, ${paramID(req.body.director)}, ${paramID(req.body.actor)}) AS \`values\`
+    SELECT * FROM (SELECT '${req.body.nombre}' AS col1, ${paramID(req.body.genero)} AS col2, ${paramID(req.body.director)} AS col3, ${paramID(req.body.actor)} AS col4) AS \`values\`
     WHERE NOT EXISTS
         (SELECT * FROM competencias WHERE nombre like '${req.body.nombre}')
     AND NOT EXISTS
