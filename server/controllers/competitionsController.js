@@ -269,7 +269,7 @@ function getCompetition(req, res) { // req.params.id
     });
 }
 
-function deleteCompetition(req, res) {
+function resetCompetition(req, res) {
     let query = ` DELETE FROM competencias_votos WHERE competencia_id = ${req.params.id}; `;
 
     connection.query(query, (error, response) => {
@@ -302,5 +302,5 @@ module.exports = {
     getActors: getActors,
     createCompetition: createCompetition,
     getCompetition: getCompetition,
-    deleteCompetition: deleteCompetition
+    resetCompetition: resetCompetition
 }

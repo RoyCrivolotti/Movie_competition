@@ -1,12 +1,12 @@
 $(function () {
 	// Get the ID from the URL using the function in helpers.js
-	let idCompetition = getQueryParam('id');
+	let competitionID = getQueryParam('id');
 
 	let competitionsController = new CompetitionsController();
-	competitionsController.getCompetition(idCompetition);
+	competitionsController.getCompetition(competitionID);
 
 	$('#formCompetencia').ajaxForm({
-		url: `${server}/competitions/${idCompetition}`,
+		url: `${server}/competitions/${competitionID}`,
 		type: 'delete',
 		success: res => window.location.replace('./index.html?exito=True'),
 		error: (response, status, xhr) => $('#mensajeDeError').text(response.responseText)
