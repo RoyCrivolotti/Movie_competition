@@ -11,7 +11,7 @@ function getCompetitions(req, res) {
 
         if (error) {
             console.log(`The query encountered an issue: ${error.message}`);
-            return res.status(404).send(`The query encountered an issue: ${error.message}`);
+            return res.status(500).send(`The query encountered an issue: ${error.message}`);
         }
 
         res.send(JSON.stringify(response));
@@ -24,7 +24,7 @@ function getOptions(req, res) {
     connection.query(compQuery, (error, response) => {
         if (error) {
             console.log(`The query encountered an issue: ${error.message}`);
-            return res.status(404).send(`The query encountered an issue: ${error.message}`);
+            return res.status(500).send(`There was an issue: ${error.message}`);
         }
 
         if (response.length < 1) return res.status(422).send(`There were not enough results found for this competition–minimum is one.`);
@@ -76,7 +76,7 @@ function getOptions(req, res) {
         connection.query(query, (error_, response_) => {
             if (error_) {
                 console.log(`The query encountered an issue: ${error.message}`);
-                return res.status(500).send(`The query encountered an issue: ${error_.message}`);
+                return res.status(500).send(`There was an issue: ${error_.message}`);
             }
 
             if (response_.length < 2) return res.status(422).send(`There were not enough results found for this competition–minimum is two.`);
@@ -95,8 +95,10 @@ function vote(req, res) {
     connection.query(query, (error, response) => {
         if (error) {
             console.log(`The query encountered an issue: ${error.message}`);
-            return res.status(404).send(`The query encountered an issue: ${error.message}`);
+            return res.status(500).send(`The query encountered an issue: ${error.message}`);
         }
+
+        if (response.affectedRows == 0) return res.status(422).send(`No vote was processed.`);
 
         res.json(response);
     });
@@ -108,10 +110,10 @@ function getResults(req, res) {
     connection.query(query, (error, response) => {
         if (error) {
             console.log(`The query encountered an issue: ${error.message}`);
-            return res.status(404).send(`The query encountered an issue: ${error.message}`);
+            return res.status(500).send(`There was an issue: ${error.message}`);
         }
 
-        if (response.length == 0) console.log('There were no matches, hence this there was an empty response :S');
+        if (response.length == 0) return res.status(404).send('There were no results for this query.');
 
         res.json(response);
     });
@@ -123,8 +125,10 @@ function getGenres(req, res) {
     connection.query(query, (error, response) => {
         if (error) {
             console.log(`The query encountered an issue: ${error.message}`);
-            return res.status(404).send(`The query encountered an issue: ${error.message}`);
+            return res.status(500).send(`There was an issue: ${error.message}`);
         }
+
+        if (response.length == 0) return res.status(404).send('No matches were found for \'genres\'.');
 
         res.json(response);
     });
@@ -136,8 +140,10 @@ function getDirectors(req, res) {
     connection.query(query, (error, response) => {
         if (error) {
             console.log(`The query encountered an issue: ${error.message}`);
-            return res.status(404).send(`The query encountered an issue: ${error.message}`);
+            return res.status(500).send(`There was an issue: ${error.message}`);
         }
+
+        if (response.length == 0) return res.status(404).send('No matches were found for \'directors\'.');
 
         res.json(response);
     });
@@ -149,8 +155,10 @@ function getActors(req, res) {
     connection.query(query, (error, response) => {
         if (error) {
             console.log(`The query encountered an issue: ${error.message}`);
-            return res.status(404).send(`The query encountered an issue: ${error.message}`);
+            return res.status(500).send(`There was an issue: ${error.message}`);
         }
+
+        if (response.length == 0) return res.status(404).send('No matches were found for \'actors\'.');
 
         res.json(response);
     });
@@ -184,12 +192,29 @@ function createCompetition(req, res) {
     connection.query(query, (error, response) => {
         if (error) {
             console.log(`The query encountered an issue: ${error.message}`);
-            return res.status(404).send(`The query encountered an issue: ${error.message}`);
+            return res.status(500).send(`The query encountered an issue: ${error.message}`);
         }
 
         if (response.length < 2) return res.status(422).send(`There were not enough movie options for this competition –minimum is two...`);
 
         res.json(response);
+    });
+}
+
+function editCompetitionName(req, res) { //req.body.nombre
+    if (!/\S/.test(req.body.nombre)) return;
+
+    let query = ` UPDATE competencias SET nombre = ${req.body.nombre} WHERE id = ${req.params.id} `;
+    // console.log(req.body);
+
+    connection.query(query, (error, response) => {
+        if (error) {
+            console.log(`The query encountered an issue: ${error.message}`);
+            return res.status(500).send(`There was an issue: ${error.message}`);
+        }
+
+        if (response.affectedRows == 0) return res.status(422).send(`Nothing was modified.`);
+        return res.status(200).send(`The name of the competition with ID ${req.params.id} was successfully modified.`);
     });
 }
 
@@ -201,10 +226,10 @@ function getCompetition(req, res) { // req.params.id
     connection.query(query, (error, response) => {
         if (error) {
             console.log(`The query encountered an issue: ${error.message}`);
-            return res.status(404).send(`The query encountered an issue: ${error.message}`);
+            return res.status(500).send(`There was an issue: ${error.message}`);
         }
 
-        if (response.length == 0) return res.status(422).send(`There were no results for this competition ID.`);
+        if (response.length == 0) return res.status(404).send(`There were no results for this competition ID.`);
 
         let fields = [{
                 'table': 'genero',
@@ -253,7 +278,7 @@ function getCompetition(req, res) { // req.params.id
             console.log(query);
             if (error) {
                 console.log(`The query encountered an issue: ${error.message}`);
-                return res.status(404).send(`The query encountered an issue: ${error.message}`);
+                return res.status(500).send(`The query encountered an issue: ${error.message}`);
             }
 
             if (response_.length == 0) return res.status(422).send(`There was an issue with the request: no criteria was found for this competition.`);
@@ -274,11 +299,11 @@ function resetCompetition(req, res) {
     connection.query(query, (error, response) => {
         if (error) {
             console.log(`The query encountered an issue: ${error.message}`);
-            return res.status(404).send(`The query encountered an issue: ${error.message}`);
+            return res.status(500).send(`There was an issue: ${error.message}`);
         }
 
-        if (response.affectedRows == 0) return res.status(200).send(`There were no votes to reset!`);
-        return res.status(404).send(`The votes for the competition with ID ${req.params.id} were successfully reseted.`);
+        if (response.affectedRows == 0) return res.status(422).send(`There were no votes to reset!`);
+        return res.status(200).send(`The votes for the competition with ID ${req.params.id} were successfully reseted.`);
     });
 }
 
@@ -289,9 +314,10 @@ function deleteCompetition(req, res) {
     connection.query(query, (error, response) => {
         if (error) {
             console.log(`The query encountered an issue: ${error.message}`);
-            return res.status(404).send(`The query encountered an issue: ${error.message}`);
+            return res.status(500).send(`There was an issue: ${error.message}`);
         }
 
+        if (response.affectedRows == 0) return res.status(422).send(`There were no votes to reset!`);
         res.status(200).send(`The votes for the competition with ID ${req.params.id} were successfully reseted.`);
     });
 }
@@ -316,5 +342,6 @@ module.exports = {
     createCompetition: createCompetition,
     getCompetition: getCompetition,
     resetCompetition: resetCompetition,
-    deleteCompetition: deleteCompetition
+    deleteCompetition: deleteCompetition,
+    editCompetitionName: editCompetitionName
 }
