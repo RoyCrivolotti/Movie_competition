@@ -1,27 +1,21 @@
-// Al finalizarse de cargar el DOM:
 $(function () {
-	// Se obtiene el id en la URL usando la función en helpers.js
-	let idCompetencia = getQueryParam('id');
-	// Se obtienen del backend y cargan en el DOM los detalles de la competencia
+	// Get the ID from the URL using the function in helpers.js
+	let competitionID = getQueryParam('id');
+
 	let competitionsController = new CompetitionsController();
-	competitionsController.getCompetition(idCompetencia)
-	// Al enviarse el formulario, se debe ejecutar un PUT al servidor
+	competitionsController.getCompetition(competitionID)
+
 	$('#formCompetencia').ajaxForm({
-		url: server + '/competencias/' + idCompetencia,
+		url: `${server}/competitions/${competitionID}`,
 		type: 'put',
-		// En caso de éxito, se redirige a index.html
-		success: function (res) {
-			window.location.replace('./index.html?exito=True');
-		},
-		// En caso de error por validación, se muestra el mensaje de error en el contenedor para tal fin
-		error: function (response, status, xhr) {
+		success: res => window.location.replace('./index.html?exito=True'),
+		error: (response, status, xhr) => {
 			if (response.status == 422) {
 				$('#mensajeDeError').text(response.responseText);
 			}
 		}
 	});
-	// Si el usuario cancela, se redirige a index.html
-	$('.cancelar').click(function () {
-		window.location.replace('./index.html');
-	});
+
+	// If the user cancels, it redirects to index.html
+	$('.cancelar').click(() => window.location.replace('./index.html'));
 });
