@@ -1,26 +1,17 @@
-// Al finalizarse de cargar el DOM:
 $(function () {
-	// Se obtiene el id en la URL usando la función en helpers.js
-	let idCompetencia = getQueryParam('id');
-	// Se obtiene del backend el detalle de la competencia actual
+	// Get the ID from the URL using the function in helpers.js
+	let idCompetition = getQueryParam('id');
+
 	let competitionsController = new CompetitionsController();
-	competitionsController.getCompetition(idCompetencia)
-	// Al enviarse el formulario, se debe ejecutar un DELETE al servidor
+	competitionsController.getCompetition(idCompetition);
+
 	$('#formCompetencia').ajaxForm({
-		url: server + '/competencias/' + idCompetencia,
+		url: `${server}/competitions/${idCompetition}`,
 		type: 'delete',
-		// En caso de éxito, se redirige a index.html
-		success: function (res) {
-			window.location.replace('./index.html?exito=True');
-		},
-		// En caso de error, se muestra el mensaje de error en el contenedor para tal fin
-		error: function (response, status, xhr) {
-			$('#mensajeDeError').text(response.responseText);
-		}
+		success: res => window.location.replace('./index.html?exito=True'),
+		error: (response, status, xhr) => $('#mensajeDeError').text(response.responseText)
 	});
 
-	// Si el usuario cancela, se redirige a index.html
-	$('.cancelar').click(function () {
-		window.location.replace('./index.html');
-	});
+	// If the user cancels, it redirects to index.html
+	$('.cancelar').click(() => window.location.replace('./index.html'));
 });

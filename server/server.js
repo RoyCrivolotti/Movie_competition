@@ -19,6 +19,10 @@ app.get('/genres', controller.getGenres);
 app.get('/directors', controller.getDirectors);
 app.get('/actors', controller.getActors);
 app.post('/competitions', controller.createCompetition);
+app.get('/competitions/:id', controller.getCompetition);
+app.delete('competitions/:id/votes', controller.deleteCompetition);
+
+// `${server}/competitions/${idCompetition}/votes`
 
 let port = '8080';
 app.listen(port, e => console.log('Listening to port: ' + port));

@@ -44,7 +44,29 @@ function getOptions(req, res) {
             }
         }
 
-        let query = queryBuilder(mainParams);
+        let query = ` SELECT pelicula.* FROM pelicula `,
+            queryLength = 0;
+
+        // For every valid/defined filter (actor/director/genre), join the necessary tables
+        Object.keys(mainParams).map(key => {
+            if (mainParams[key].value.every(queryParamExists)) {
+                queryLength++;
+                query += mainParams[key].query;
+            }
+        });
+
+        query += ` WHERE `; // There is always at least one condition
+
+        // Again, I loop through the object to add the conditions
+        Object.keys(mainParams).map(key => {
+            if (mainParams[key].value.every(queryParamExists)) {
+                query += mainParams[key].condition;
+                queryLength--;
+                if (queryLength > 0) query += ` AND `;
+            }
+        });
+
+        query += ` ORDER BY RAND() LIMIT 2 `;
         console.log(query);
 
         connection.query(query, (error_, response_) => {
@@ -168,32 +190,79 @@ function createCompetition(req, res) {
     });
 }
 
-function queryBuilder(mainParams) {
-    let query = ` SELECT pelicula.* FROM pelicula `,
-        queryLength = 0;
+// This function is a bit long, but I couldn't find a simpler way of returning not only the competition name, but also director name, actor name and genre name, considering a dinamically constructed query that takes into account null vs non-null values
+function getCompetition(req, res) { // req.params.id
+    let query = ` SELECT * FROM competencias WHERE id = ${req.params.id} `;
+    let notNullValueFound = false;
 
-    // For every valid/defined filter (actor/director/genre), join the necessary tables
-    Object.keys(mainParams).map(key => {
-        if (mainParams[key].value.every(queryParamExists)) {
-            queryLength++;
-            query += mainParams[key].query;
+    connection.query(query, (error, response) => {
+        if (error || response.length == 0) {
+            console.log(`The query encountered an issue: ${error.message}`);
+            return res.status(404).send(`The query encountered an issue: ${error.message}`);
         }
-    });
 
-    query += ` WHERE `; // There is always at least one condition
+        console.log(response);
 
-    // Again, I loop through the object to add the conditions
-    Object.keys(mainParams).map(key => {
-        if (mainParams[key].value.every(queryParamExists)) {
-            query += mainParams[key].condition;
-            queryLength--;
-            if (queryLength > 0) query += ` AND `;
+        let fields = [{
+                'table': 'genero',
+                'alias': 'genero_nombre',
+                'join': 'genero_id',
+                'id': response[0].genero_id
+            },
+            {
+                'table': 'director',
+                'alias': 'director_nombre',
+                'join': 'director_id',
+                'id': response[0].director_id
+            },
+            {
+                'table': 'actor',
+                'alias': 'actor_nombre',
+                'join': 'actor_id',
+                'id': response[0].actor_id
+            }
+        ];
+
+        for (let i = 0; i < fields.length; i++) {
+            if (fields[i].id == null) fields.splice(i, 1);
         }
+
+        query = ` SELECT `;
+
+        fields.forEach(fieldObj => {
+            if (notNullValueFound == false) notNullValueFound = true;
+            else query += `, `
+
+            query += `${fieldObj.table}.nombre AS ${fieldObj.alias}`;
+        });
+
+        notNullValueFound = false;
+        query += ` FROM competencias `
+
+        fields.forEach(fieldObj => query += ` JOIN ${fieldObj.table} ON competencias.${fieldObj.join} = ${fieldObj.table}.id `);
+
+        query += `;`;
+
+        connection.query(query, (error, response_) => {
+            console.log(query);
+            if (error || response_.length == 0) {
+                console.log(`The query encountered an issue: ${error.message}`);
+                return res.status(404).send(`The query encountered an issue: ${error.message}`);
+            }
+
+            console.log(response_[0]);
+            res.json({
+                'nombre': response[0].nombre,
+                'genero_nombre': response_[0].genero_nombre || '',
+                'director_nombre': response_[0].director_nombre || '',
+                'actor_nombre': response_[0].actor_nombre || ''
+            });
+        });
     });
+}
 
-    query += ` ORDER BY RAND() LIMIT 2 `;
-
-    return query;
+function deleteCompetition(req, res) {
+    console.log(req.params.id);
 }
 
 function queryParamExists(value) {
@@ -213,5 +282,7 @@ module.exports = {
     getGenres: getGenres,
     getDirectors: getDirectors,
     getActors: getActors,
-    createCompetition: createCompetition
+    createCompetition: createCompetition,
+    getCompetition: getCompetition,
+    deleteCompetition: deleteCompetition
 }
