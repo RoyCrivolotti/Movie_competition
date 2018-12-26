@@ -1,11 +1,11 @@
 $(function () {
-	let idCompetition = getQueryParam('id');
+	let competitionID = getQueryParam('id');
 
 	let competitionsController = new CompetitionsController();
-	competitionsController.getCompetition(idCompetition)
+	competitionsController.getCompetition(competitionID)
 
 	$('#formCompetencia').ajaxForm({
-		url: `${server}/competitions/${idCompetition}/votes`,
+		url: `${server}/competitions/${competitionID}/votes`,
 		type: 'delete',
 		success: res => window.location.replace('./index.html?exito=True'),
 		error: (response, status, xhr) => $('#mensajeDeError').text(response.responseText)
