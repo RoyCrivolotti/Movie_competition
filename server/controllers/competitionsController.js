@@ -90,7 +90,7 @@ function getOptions(req, res) {
 }
 
 function vote(req, res) {
-    let query = ` CALL update_or_insert_vote(${req.params.competitionID}, ${req.body.movieID}) `;
+    let query = ` CALL update_or_insert_vote(${req.params.id}, ${req.body.movieID}) `;
 
     connection.query(query, (error, response) => {
         if (error) {
@@ -270,7 +270,17 @@ function getCompetition(req, res) { // req.params.id
 }
 
 function deleteCompetition(req, res) {
-    let query = ` DELETE c, cv FROM competencias AS c JOIN competencias_votos AS cv WHERE c.id = cv.competencia_id AND c.id = ${req.params.id}; `;
+    let query = ` DELETE FROM competencias_votos WHERE competencia_id = ${req.params.id}; `;
+
+    connection.query(query, (error, response) => {
+        console.log(response);
+        if (error) {
+            console.log(`The query encountered an issue: ${error.message}`);
+            return res.status(404).send(`The query encountered an issue: ${error.message}`);
+        }
+
+        res.status(200).send(`The votes for the competition with ID ${req.params.id} were successfully reseted.`);
+    });
 }
 
 function queryParamExists(value) {
