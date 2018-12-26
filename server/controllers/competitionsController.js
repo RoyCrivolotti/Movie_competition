@@ -258,7 +258,6 @@ function getCompetition(req, res) { // req.params.id
 
             if (response_.length == 0) return res.status(422).send(`There was an issue with the request: no criteria was found for this competition.`);
 
-            console.log(response_[0]);
             res.json({
                 'nombre': response[0].nombre,
                 'genero_nombre': response_[0].genero_nombre || '',
@@ -273,7 +272,21 @@ function resetCompetition(req, res) {
     let query = ` DELETE FROM competencias_votos WHERE competencia_id = ${req.params.id}; `;
 
     connection.query(query, (error, response) => {
-        console.log(response);
+        if (error) {
+            console.log(`The query encountered an issue: ${error.message}`);
+            return res.status(404).send(`The query encountered an issue: ${error.message}`);
+        }
+
+        if (response.affectedRows == 0) return res.status(200).send(`There were no votes to reset!`);
+        return res.status(404).send(`The votes for the competition with ID ${req.params.id} were successfully reseted.`);
+    });
+}
+
+function deleteCompetition(req, res) {
+    // This query has one vulnerability: it depends on the fact that the rest of the code doesn't allow for there to be votes on a competition that doesn't exist: it doesn't check for that!
+    let query = ` DELETE c, cv FROM competencias AS c LEFT JOIN competencias_votos AS cv ON c.id = cv.competencia_id WHERE c.id = ${req.params.id} `;
+
+    connection.query(query, (error, response) => {
         if (error) {
             console.log(`The query encountered an issue: ${error.message}`);
             return res.status(404).send(`The query encountered an issue: ${error.message}`);
@@ -302,5 +315,6 @@ module.exports = {
     getActors: getActors,
     createCompetition: createCompetition,
     getCompetition: getCompetition,
-    resetCompetition: resetCompetition
+    resetCompetition: resetCompetition,
+    deleteCompetition: deleteCompetition
 }
