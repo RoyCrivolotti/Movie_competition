@@ -19,6 +19,7 @@ app.get('/genres', controller.getGenres);
 app.get('/directors', controller.getDirectors);
 app.get('/actors', controller.getActors);
 app.post('/competitions', controller.createCompetition);
+app.put('/competitions/:id', controller.editCompetitionName);
 app.get('/competitions/:id', controller.getCompetition);
 app.delete('/competitions/:id/votes', controller.resetCompetition);
 app.delete('/competitions/:id', controller.deleteCompetition);
