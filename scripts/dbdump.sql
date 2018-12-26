@@ -112,7 +112,8 @@ INSERT INTO competencias (nombre, genero_id, director_id, actor_id)
 VALUES
 ('Cuál es tu película favorita de Spielberg?', NULL, 3364, NULL),
 ('Qué película de terror te hizo gritar más?', 10, NULL, NULL),
-('Cuál es tu película favorita de Brad Pitt?', NULL, NULL, 227);
+('Cuál es tu película favorita de Brad Pitt?', NULL, NULL, 227),
+('Qué policial de Martin Scorsese preferís?', 6, 3432, NULL);
 
 DROP TABLE IF EXISTS `competencias_votos`;
 CREATE TABLE `competencias_votos` (
