@@ -13,14 +13,14 @@ app.use(bodyParser.json());
 
 app.get('/competitions', controller.getCompetitions);
 app.get('/competitions/:id/movies', controller.getOptions);
-app.post('/competitions/:competitionID/vote', controller.vote);
+app.post('/competitions/:id/vote', controller.vote);
 app.get('/competitions/:id/results', controller.getResults);
 app.get('/genres', controller.getGenres);
 app.get('/directors', controller.getDirectors);
 app.get('/actors', controller.getActors);
 app.post('/competitions', controller.createCompetition);
 app.get('/competitions/:id', controller.getCompetition);
-app.delete('competitions/:id/votes', controller.deleteCompetition);
+app.delete('/competitions/:id/votes', controller.deleteCompetition);
 
 // `${server}/competitions/${idCompetition}/votes`
 
