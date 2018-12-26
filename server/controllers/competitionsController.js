@@ -1,5 +1,8 @@
 const connection = require('../lib/dbconnection');
 
+
+//TODO: check error messages sent: 404, 500, 422, etc.
+
 function getCompetitions(req, res) {
     let query = `SELECT * FROM competencias`;
 
@@ -19,11 +22,12 @@ function getOptions(req, res) {
     let compQuery = `SELECT * FROM competencias WHERE id = ${req.params.id}`;
 
     connection.query(compQuery, (error, response) => {
-        if (error || response.length < 1) {
-            console.log(response[0]);
+        if (error) {
             console.log(`The query encountered an issue: ${error.message}`);
             return res.status(404).send(`The query encountered an issue: ${error.message}`);
         }
+
+        if (response.length < 1) return res.status(422).send(`There were not enough results found for this competition–minimum is one.`);
 
         // I use this kind of objects to build queries, so that if tomorrow a new filter is added, I'll probably just have to edit this object
         let mainParams = {
@@ -66,14 +70,16 @@ function getOptions(req, res) {
             }
         });
 
-        query += ` ORDER BY RAND() LIMIT 2 `;
+        query += ` ORDER BY RAND() LIMIT 2;`;
         console.log(query);
 
         connection.query(query, (error_, response_) => {
-            if (error_ || response_.length < 2) {
-                console.log(`The query encountered an issue: ${error_.message}`);
-                return res.status(404).send(`The query encountered an issue: ${error_.message}`);
+            if (error_) {
+                console.log(`The query encountered an issue: ${error.message}`);
+                return res.status(500).send(`The query encountered an issue: ${error_.message}`);
             }
+
+            if (response_.length < 2) return res.status(422).send(`There were not enough results found for this competition–minimum is two.`);
 
             res.send(JSON.stringify({
                 'competition': response[0].nombre,
@@ -84,9 +90,6 @@ function getOptions(req, res) {
 }
 
 function vote(req, res) {
-    console.log(req.params);
-    console.log(req.body);
-
     let query = ` CALL update_or_insert_vote(${req.params.competitionID}, ${req.body.movieID}) `;
 
     connection.query(query, (error, response) => {
@@ -100,8 +103,6 @@ function vote(req, res) {
 }
 
 function getResults(req, res) {
-    console.log(req.params.id); // Competition id
-
     let query = ` SELECT * FROM competencias_votos cv JOIN pelicula p ON p.id = cv.pelicula_id WHERE cv.competencia_id = ${req.params.id} ORDER BY votos DESC LIMIT 3; `;
 
     connection.query(query, (error, response) => {
@@ -186,6 +187,8 @@ function createCompetition(req, res) {
             return res.status(404).send(`The query encountered an issue: ${error.message}`);
         }
 
+        if (response.length < 2) return res.status(422).send(`There were not enough movie options for this competition –minimum is two...`);
+
         res.json(response);
     });
 }
@@ -196,12 +199,12 @@ function getCompetition(req, res) { // req.params.id
     let notNullValueFound = false;
 
     connection.query(query, (error, response) => {
-        if (error || response.length == 0) {
+        if (error) {
             console.log(`The query encountered an issue: ${error.message}`);
             return res.status(404).send(`The query encountered an issue: ${error.message}`);
         }
 
-        console.log(response);
+        if (response.length == 0) return res.status(422).send(`There were no results for this competition ID.`);
 
         let fields = [{
                 'table': 'genero',
@@ -224,7 +227,10 @@ function getCompetition(req, res) { // req.params.id
         ];
 
         for (let i = 0; i < fields.length; i++) {
-            if (fields[i].id == null) fields.splice(i, 1);
+            if (fields[i].id == null) {
+                fields.splice(i, 1);
+                i--;
+            }
         }
 
         query = ` SELECT `;
@@ -237,18 +243,20 @@ function getCompetition(req, res) { // req.params.id
         });
 
         notNullValueFound = false;
-        query += ` FROM competencias `
+        query += ` FROM competencias AS c `
 
-        fields.forEach(fieldObj => query += ` JOIN ${fieldObj.table} ON competencias.${fieldObj.join} = ${fieldObj.table}.id `);
+        fields.forEach(fieldObj => query += ` JOIN ${fieldObj.table} ON c.${fieldObj.join} = ${fieldObj.table}.id `);
 
-        query += `;`;
+        query += ` WHERE c.id = ${req.params.id};`;
 
         connection.query(query, (error, response_) => {
             console.log(query);
-            if (error || response_.length == 0) {
+            if (error) {
                 console.log(`The query encountered an issue: ${error.message}`);
                 return res.status(404).send(`The query encountered an issue: ${error.message}`);
             }
+
+            if (response_.length == 0) return res.status(422).send(`There was an issue with the request: no criteria was found for this competition.`);
 
             console.log(response_[0]);
             res.json({
@@ -262,7 +270,7 @@ function getCompetition(req, res) { // req.params.id
 }
 
 function deleteCompetition(req, res) {
-    console.log(req.params.id);
+    let query = ` DELETE c, cv FROM competencias AS c JOIN competencias_votos AS cv WHERE c.id = cv.competencia_id AND c.id = ${req.params.id}; `;
 }
 
 function queryParamExists(value) {
