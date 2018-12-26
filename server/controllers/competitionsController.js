@@ -204,8 +204,7 @@ function createCompetition(req, res) {
 function editCompetitionName(req, res) { //req.body.nombre
     if (!/\S/.test(req.body.nombre)) return;
 
-    let query = ` UPDATE competencias SET nombre = ${req.body.nombre} WHERE id = ${req.params.id} `;
-    // console.log(req.body);
+    let query = ` UPDATE competencias SET nombre = '${req.body.nombre}' WHERE id = ${req.params.id}; `;
 
     connection.query(query, (error, response) => {
         if (error) {
