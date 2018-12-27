@@ -5,30 +5,60 @@ function createCompetition(req, res) {
 
     if (req.body.genero == 0 && req.body.director == 0 && req.body.actor == 0) {
         return res.status(422).send('You must enter at least one criteria for the competition.');
+
     }
+
+    if (!queryParamExists(req.body.nombre)) return;
 
     let paramID = param => {
         if (param == 0) return 'NULL';
         else return param;
     }
 
-    let valueOrNull = param => { // In the last 'AND NOT EXISTS', if the value is 'NULL' it's compared with 'IS NULL', if it's a number it's compared with the equals operator...
+    let valueOrNull = param => {
         if (param == 0) return `IS NULL`;
         else return ` = ${param} `;
     }
 
-    if (!queryParamExists(req.body.nombre)) return;
+    let mainParams = {
+        'director': {
+            'value': req.body.director,
+            'query': `JOIN director_pelicula dp ON p.id = dp.pelicula_id `,
+            'condition': ` dp.director_id = ${req.body.director} `
+        },
+        'actor': {
+            'value': req.body.actor,
+            'query': `JOIN actor_pelicula ap ON p.id = ap.pelicula_id `,
+            'condition': ` ap.actor_id = ${req.body.actor} `
+        },
+    }
 
-    let query = ` INSERT INTO competencias (nombre, genero_id, director_id, actor_id)
-    SELECT * FROM (SELECT '${req.body.nombre}' AS col1, ${paramID(req.body.genero)} AS col2, ${paramID(req.body.director)} AS col3, ${paramID(req.body.actor)} AS col4) AS \`values\`
-    WHERE NOT EXISTS
-        (SELECT * FROM competencias WHERE nombre like '${req.body.nombre}')
-    AND NOT EXISTS
-        (SELECT * FROM competencias WHERE genero_id ${valueOrNull(req.body.genero)} AND director_id ${valueOrNull(req.body.director)} AND actor_id ${valueOrNull(req.body.actor)})
-    LIMIT 1; `;
+    let query = ` SELECT * FROM pelicula p `,
+        queryLength = 0;
 
+    // For every valid/defined filter (actor/director), join the necessary tables
+    Object.keys(mainParams).map(key => {
+        if (mainParams[key].value != 0) {
+            queryLength++;
+            query += mainParams[key].query;
+        }
+    });
+
+    query += ` WHERE `; // There is always at least one condition
+
+    // Again, I loop through the object to add the conditions
+    Object.keys(mainParams).map(key => {
+        if (mainParams[key].value != 0) {
+            query += mainParams[key].condition;
+            queryLength--;
+            if (queryLength > 0) query += `AND`;
+        }
+    });
+
+    query += `;`;
     console.log(query);
 
+    // First, check if there are at least two movies for said competition..
     connection.query(query, (error, response) => {
         if (error) {
             console.log(`The query encountered an issue: ${error.message}`);
@@ -37,7 +67,22 @@ function createCompetition(req, res) {
 
         if (response.length < 2) return res.status(422).send(`There were not enough movie options for this competition –minimum is two...`);
 
-        res.json(response);
+        query = ` INSERT INTO competencias (nombre, genero_id, director_id, actor_id)
+        SELECT * FROM (SELECT '${req.body.nombre}' AS col1, ${paramID(req.body.genero)} AS col2, ${paramID(req.body.director)} AS col3, ${paramID(req.body.actor)} AS col4) AS \`values\`
+        WHERE NOT EXISTS (SELECT * FROM competencias WHERE nombre like '${req.body.nombre}')
+        AND NOT EXISTS (SELECT * FROM competencias WHERE genero_id ${valueOrNull(req.body.genero)} AND director_id ${valueOrNull(req.body.director)} AND actor_id ${valueOrNull(req.body.actor)}) LIMIT 1; `;
+
+        console.log(query);
+
+        // If there are, create it.
+        connection.query(query, (error, response) => {
+            if (error) {
+                console.log(`The query encountered an issue: ${error.message}`);
+                return res.status(500).send(`The query encountered an issue: ${error.message}`);
+            }
+
+            res.json(response);
+        });
     });
 }
 
