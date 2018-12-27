@@ -213,6 +213,10 @@ h1 {
 	background-color: #9C54B8;
 }
 
+#mensajeDeError {
+	color: #FFEC78;
+}
+
 /*////////// RESPONSIVE ////////////*/
 
 @media only screen and (max-width: 480px) {
