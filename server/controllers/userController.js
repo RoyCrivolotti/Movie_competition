@@ -24,7 +24,7 @@ function getOptions(req, res) {
             return res.status(500).send(`There was an issue: ${error.message}`);
         }
 
-        if (response.length < 1) return res.status(422).send(`There were not enough results found for this competition–minimum is one.`);
+        if (response.length < 1) return res.status(422).send(`There were not enough results found for this competition.`);
 
         // I use this kind of objects to build queries, so that if tomorrow a new filter is added, I'll probably just have to edit this object
         let mainParams = {
@@ -76,7 +76,7 @@ function getOptions(req, res) {
                 return res.status(500).send(`There was an issue: ${error_.message}`);
             }
 
-            if (response_.length < 2) return res.status(422).send(`There were not enough results found for this competition–minimum is two.`);
+            if (response_.length < 2) return res.status(422).send(`There were not movies found for this competition, at least one must have gotten deleted from the database, sorry!`);
 
             res.send(JSON.stringify({
                 'competition': response[0].nombre,
@@ -109,8 +109,6 @@ function getResults(req, res) {
             console.log(`The query encountered an issue: ${error.message}`);
             return res.status(500).send(`There was an issue: ${error.message}`);
         }
-
-        if (response.length == 0) return res.status(404).send('There were no results for this query.');
 
         res.json(response);
     });
