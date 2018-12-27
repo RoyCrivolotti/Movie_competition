@@ -9,15 +9,10 @@ $(function () {
 	$('#formCompetencia').ajaxForm({
 		url: `${server}/competitions`,
 		type: 'post',
-		// Success
-		success: function (res) {
-			window.location.replace('./index.html?exito=True');
-		},
-		// Validation errors
+		success: res => window.location.replace('./index.html?exito=True'),
 		error: (response, status, xhr) => {
-			if (response.status == 422) {
-				$('#mensajeDeError').text(response.responseText);
-			}
+			console.warn(response.responseText);
+			if (response.status == 422) $('#mensajeDeError').text(response.responseText);
 		}
 	});
 
