@@ -1,5 +1,6 @@
-$(function () {
-	let competitionsController = new CompetitionsController();
+/* global server, CompetitionsController */
+$(() => {
+	const competitionsController = new CompetitionsController();
 
 	competitionsController.loadGenres();
 	competitionsController.loadDirectors();
@@ -12,8 +13,8 @@ $(function () {
 		success: res => window.location.replace('./index.html?exito=True'),
 		error: (response, status, xhr) => {
 			console.warn(response.responseText);
-			if (response.status == 422) $('#mensajeDeError').text(response.responseText);
-		}
+			if (response.status === 422) $('#mensajeDeError').text(response.responseText);
+		},
 	});
 
 	$('.cancelar').click(() => window.location.replace('./index.html'));

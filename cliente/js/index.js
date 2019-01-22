@@ -1,4 +1,5 @@
-$(function () {
-	let competitionsController = new CompetitionsController();
+/* global CompetitionsController */
+$(() => {
+	const competitionsController = new CompetitionsController();
 	competitionsController.getCompetitions();
 });

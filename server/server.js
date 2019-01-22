@@ -8,7 +8,7 @@ const app = express();
 
 app.use(cors());
 app.use(bodyParser.urlencoded({
-    extended: true
+	extended: true,
 }));
 app.use(bodyParser.json());
 
@@ -25,5 +25,5 @@ app.get('/competitions/:id', adminController.getCompetition);
 app.delete('/competitions/:id/votes', adminController.resetCompetition);
 app.delete('/competitions/:id', adminController.deleteCompetition);
 
-let port = '8080';
-app.listen(port, e => console.log('Listening to port: ' + port));
+const port = '8080';
+app.listen(port, e => console.log(`Listening to port: ${port}`));

@@ -2,53 +2,53 @@
 <html>
 
 <head>
-	<meta charset='UTF-8'>
-	<meta name='format-detection' content='telephone=no'>
-	<meta name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=no'>
-	<title>Votar | Peli vs Peli</title>
+    <meta charset='UTF-8'>
+    <meta name='format-detection' content='telephone=no'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=no'>
+    <title>Votar | Peli vs Peli</title>
 
-	<script src='https://code.jquery.com/jquery-3.3.1.min.js'></script>
-	<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.min.js'></script>
-	<script src='../js/helpers.js'></script>
+    <script src='https://code.jquery.com/jquery-3.3.1.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.min.js'></script>
+    <script src='../js/helpers.js'></script>
 
-	<link rel='stylesheet' type='text/css' href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css'>
-	<link rel='stylesheet' type='text/css' href='../css/style.css'>
-	<link rel='stylesheet' type='text/css' href='../css/style-votar.css'>
+    <link rel='stylesheet' type='text/css' href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css'>
+    <link rel='stylesheet' type='text/css' href='../css/style.css'>
+    <link rel='stylesheet' type='text/css' href='../css/style-votar.css'>
 </head>
 
 <body>
-	<header>
-		<div class='logo'>
-			<span class='icono'></span>
-			<span>Peli vs Peli</span>
-		</div>
-	</header>
+    <header>
+        <div class='logo'>
+            <span class='icono'></span>
+            <span>Peli vs Peli</span>
+        </div>
+    </header>
 
-	<h1 id='nombreCompetencia'></h1>
+    <h1 id='nombreCompetencia'></h1>
 
-	<div class='row'>
-		<div class='col-sm-6 col-md-6 columnaPelicula' id='opcion1'>
-			<div class='pelicula' onclick='location.href="#";' style='cursor: pointer;'>
-				<input type='hidden' name='idPelicula' class='idPelicula' />
-				<img src='data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=' class='poster' />
-				<h3 class='titulo'></h3>
-			</div>
-		</div>
-		<div class='col-sm-6 col-md-6 columnaPelicula' id='opcion2'>
-			<div class='pelicula' onclick='location.href="#";' style='cursor: pointer;'>
-				<input type='hidden' name='idPelicula' class='idPelicula' />
-				<img src='data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=' class='poster' />
-				<h3 class='titulo'></h3>
-			</div>
-		</div>
-	</div>
+    <div class='row'>
+        <div class='col-sm-6 col-md-6 columnaPelicula' id='opcion1'>
+            <div class='pelicula' onclick='location.href="#";' style='cursor: pointer;'>
+                <input type='hidden' name='idPelicula' class='idPelicula' />
+                <img src='data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=' class='poster' />
+                <h3 class='titulo'></h3>
+            </div>
+        </div>
+        <div class='col-sm-6 col-md-6 columnaPelicula' id='opcion2'>
+            <div class='pelicula' onclick='location.href="#";' style='cursor: pointer;'>
+                <input type='hidden' name='idPelicula' class='idPelicula' />
+                <img src='data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=' class='poster' />
+                <h3 class='titulo'></h3>
+            </div>
+        </div>
+    </div>
 
-	<div class='footer-actions'>
-		<a href='index.html'>Volver al listado de películas</a>
-	</div>
+    <div class='footer-actions'>
+        <a href='index.html'>Volver al listado de películas</a>
+    </div>
 
-	<script src='../js/competencia.js'></script>
-	<script src='../js/votar.js'></script>
+    <script src='../js/competencia.js'></script>
+    <script src='../js/votar.js'></script>
 </body>
 
 </html>

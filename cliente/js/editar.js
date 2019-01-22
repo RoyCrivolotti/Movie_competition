@@ -1,9 +1,10 @@
-$(function () {
+/* global server, CompetitionsController, getQueryParam */
+$(() => {
 	// Get the ID from the URL using the function in helpers.js
-	let competitionID = getQueryParam('id');
+	const competitionID = getQueryParam('id');
 
-	let competitionsController = new CompetitionsController();
-	competitionsController.getCompetition(competitionID)
+	const competitionsController = new CompetitionsController();
+	competitionsController.getCompetition(competitionID);
 
 	$('#formCompetencia').ajaxForm({
 		url: `${server}/competitions/${competitionID}`,
@@ -13,7 +14,7 @@ $(function () {
 			if (response.status == 422) {
 				$('#mensajeDeError').text(response.responseText);
 			}
-		}
+		},
 	});
 
 	// If the user cancels, it redirects to index.html

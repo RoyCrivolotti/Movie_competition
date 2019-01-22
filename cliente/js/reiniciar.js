@@ -1,14 +1,15 @@
-$(function () {
-	let competitionID = getQueryParam('id');
+/* global server, CompetitionsController, getQueryParam */
+$(() => {
+	const competitionID = getQueryParam('id');
 
-	let competitionsController = new CompetitionsController();
-	competitionsController.getCompetition(competitionID)
+	const competitionsController = new CompetitionsController();
+	competitionsController.getCompetition(competitionID);
 
 	$('#formCompetencia').ajaxForm({
 		url: `${server}/competitions/${competitionID}/votes`,
 		type: 'delete',
 		success: res => window.location.replace('./index.html?exito=True'),
-		error: (response, status, xhr) => $('#mensajeDeError').text(response.responseText)
+		error: (response, status, xhr) => $('#mensajeDeError').text(response.responseText),
 	});
 
 	// If the user cancels, it redirects to index.html
